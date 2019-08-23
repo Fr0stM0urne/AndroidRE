@@ -1,0 +1,91 @@
+#!/bin/sh
+
+for file in /media/ext/filtered/*
+do
+        #echo $file     
+        if [ ${file: -4} == ".apk" ]; then
+                #echo $file
+                result=$(grep -a "setAttestation" $file)
+                if [ -z "$result" ]; then
+                        echo ""
+                else
+                        cp $file /media/ext/filtered3
+                fi
+        fi
+done
+
+
+/media/ext/crawl_2018-04-13/apks/part1
+/media/ext/tempSmali/t1
+smRes1Cert.txt
+
+ #!/bin/sh
+
+name="com.samsung.ecomm-1.0.10258.apk"
+echo $name
+out="/media/ext/apktool/filteredSmali/$name"
+echo $out
+apktool -rf d /media/ext/apktool/com.samsung.ecomm-1.0.10258.apk -o $out
+for file in /media/ext/filtered/* 
+do 
+        name=$(echo $file | cut -f 5 -d '/')
+        echo $name
+        out="/media/ext/filteredSmali/$name"        
+        apktool -rf d $file -o $out                                             
+
+done 
+
+
+#!/bin/sh
+
+#echo "frosty" >> smaliRes.txt
+cnt=1
+for file in /media/ext/filteredSmali/*
+do
+        result=$(grep -r "getCertificateChain" $file)
+        if [ -z "$result" ]; then
+                cnt=$(( $cnt + 1 ))
+        else
+                echo "$file" >> smaliRes2.txt
+                cnt=$(( $cnt + 1 ))
+        fi
+        echo "$cnt" >> done.txt
+done
+
+
+
+#!/bin/bash
+
+out="/media/ext/tempSmali/t5"
+cnt=1
+log="/media/ext/apktoolLog/apktL5.log"
+echo "Log5" >> $log
+for file in /media/ext/crawl_2018-04-13/apks/part5/*
+do
+
+        name=$(echo $file | cut -f 7 -d '/')
+        if [[ $name == *.apk ]]; then      
+                echo "$cnt" >> $log
+                rm -r $out
+                mkdir $out
+
+                apktool -rf --no-assets d $file -o $out
+                rm -r /media/ext/tempSmali/t5/lib
+                rm -r /media/ext/tempSmali/t5/original
+                rm -r /media/ext/tempSmali/t5/res
+                #echo $file
+
+                grep -rq "setAttestationChallenge" $out
+                if [ $? -eq 0 ]; then
+                        echo "$name" >> /media/ext/apktoolRes/att5.txt
+                fi
+        
+                grep -rq "getCertificateChain" $out
+                if [ $? -eq 0 ]; then
+                        echo "$name" >> /media/ext/apktoolRes/cert5.txt
+                fi
+                
+                cnt=$(( $cnt + 1 ))
+        fi
+        
+done
